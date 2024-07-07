@@ -12,6 +12,7 @@ services:
       - db
     environment:
       DATABASE_URL: postgresql://postgres:password@db:5432/mydatabase
+      JWT_SECRET_KEY: ecbd52b7622644f4b663c513c6360cf0b0b187908179a00cd5a169ec0cd1b85b
 
   db:
     image: postgres:13

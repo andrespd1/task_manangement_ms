@@ -1,19 +1,10 @@
-from typing import Union
+from fastapi import FastAPI, Depends
 
-from fastapi import FastAPI
+from app.dependencies import Base, engine, get_db
+from app.models import user_model, task_model
+from app.routers.users_router import router
 
-from app.dependencies import SessionLocal, engine
-from app.models import user_model
+app = FastAPI(dependencies=[Depends(get_db)])
 
-app = FastAPI()
-
-user_model.Base.metadata.create_all(bind=engine)
-
-
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+app.include_router(router)
+Base.metadata.create_all(bind=engine)

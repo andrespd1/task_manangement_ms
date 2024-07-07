@@ -1,12 +1,13 @@
-from sqlalchemy import Column, String
+from sqlalchemy import UUID, Column, String
 from sqlalchemy.orm import relationship
 from ..dependencies import Base
+import uuid
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(String, primary_key=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
