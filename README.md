@@ -7,7 +7,7 @@ This microservice provides endpoints for user authentication and task management
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/andrespd1/task-management-microservice.git
+   git clone https://github.com/andrespd1/task_manangement_ms.git
    cd task-management-microservice
    ```
 
