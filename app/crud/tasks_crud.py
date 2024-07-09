@@ -1,14 +1,24 @@
 import datetime
-from sqlalchemy import Session
+from sqlalchemy.orm import Session
 from ..models import task_model
 from ..schemas import task_schema
 
 
 def create_task(db: Session, task: task_schema.Task):
+    """
+    Creates a new task in the database.
+
+    Parameters:
+    - db (Session): The database session.
+    - task (task_schema.Task): The task data for creating a new task.
+
+    Returns:
+    - task_model.Task: The created task.
+    """
     db_task = task_model.Task(
         title=task.title,
         description=task.description,
-        created_date=datetime.now(),
+        created_date=datetime.datetime.now(),
         created_by=task.created_by,
         due_date=task.due_date,
     )
@@ -19,10 +29,30 @@ def create_task(db: Session, task: task_schema.Task):
 
 
 def get_tasks_by_user(db: Session, user_id: str):
+    """
+    Retrieves all tasks created by a specific user.
+
+    Parameters:
+    - db (Session): The database session.
+    - user_id (str): The ID of the user whose tasks are to be retrieved.
+
+    Returns:
+    - List[task_model.Task]: A list of tasks created by the user.
+    """
     return db.query(task_model.Task).filter(task_model.Task.created_by == user_id).all()
 
 
 def delete_task_by_id(db: Session, task_id: str):
+    """
+    Deletes a task from the database by its ID.
+
+    Parameters:
+    - db (Session): The database session.
+    - task_id (str): The ID of the task to be deleted.
+
+    Returns:
+    - int: The number of rows affected (should be 1 if the task was deleted).
+    """
     deleted_task = (
         db.query(task_model.Task).filter(task_model.Task.id == task_id).delete()
     )
@@ -31,11 +61,20 @@ def delete_task_by_id(db: Session, task_id: str):
 
 
 def update_task_by_id(db: Session, task: task_schema.Task):
-    task: task_model.Task = (
-        db.query(task_model.Task)
-        .filter(task_model.Task.id == task.id)
-        .update(task.__dict__)
-    )
-    db.commit()
-    db.refresh(task)
-    return task
+    """
+    Updates a task in the database by its ID.
+
+    Parameters:
+    - db (Session): The database session.
+    - task (task_schema.Task): The updated task data.
+
+    Returns:
+    - task_model.Task: The updated task.
+    """
+    db_task = db.query(task_model.Task).filter(task_model.Task.id == task.id).first()
+    if db_task:
+        for key, value in task.__dict__.items():
+            setattr(db_task, key, value)
+        db.commit()
+        db.refresh(db_task)
+    return db_task
