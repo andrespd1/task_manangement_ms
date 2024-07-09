@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 router = APIRouter(prefix="/users", tags=["users"], dependencies=[Depends(get_db)])
 
 
-@router.get("/login")
+@router.post("/login")
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = router.dependencies[0],
