@@ -1,10 +1,32 @@
 from fastapi import HTTPException
-from app.crud.tasks_crud import get_tasks_by_user, update_task_by_id
+from app.crud import tasks_crud
 from app.models.task_model import Task
 from app.models.user_model import User
 from app.schemas import task_schema
 from app.services.users_service import get_user
 from sqlalchemy.orm import Session
+
+
+def create_task(db: Session, task: task_schema.TaskBase, email: str):
+    """
+    Creates a new task for the specified user.
+
+    Parameters:
+    - db (Session): The database session.
+    - task (task_schema.TaskBase): The task data for creating a new task.
+    - user_id (str): The ID of the user creating the task.
+
+    Returns:
+    - task_model.Task: The created task.
+
+    Raises:
+    - HTTPException(400): If the task creation fails.
+    """
+    try:
+        user: User = get_user(db=db, email=email)
+        return tasks_crud.create_task(db=db, task=task, user_id=str(user.id))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 def get_all_tasks_by_user(db: Session, email: str):
@@ -22,11 +44,11 @@ def get_all_tasks_by_user(db: Session, email: str):
     - HTTPException(404): If an error occurs while retrieving tasks.
     """
     user: User = get_user(db=db, email=email)
-    if user.id:
+    if not user.id:
         raise HTTPException(
             404, "An error has occurred while retrieving all the tasks associated"
         )
-    return get_tasks_by_user(db=db, user_id=user.id)
+    return tasks_crud.get_tasks_by_user(db=db, user_id=user.id)
 
 
 def get_task_by_id(db: Session, task_id: str):
@@ -45,7 +67,7 @@ def get_task_by_id(db: Session, task_id: str):
     """
     if task_id:
         raise HTTPException(400, "The task id is invalid")
-    return get_task_by_id(db=db, task_id=task_id)
+    return tasks_crud.get_task_by_id(db=db, task_id=task_id)
 
 
 def update_task(db: Session, task: task_schema.Task, user_id: str):
@@ -77,7 +99,7 @@ def update_task(db: Session, task: task_schema.Task, user_id: str):
         )
     if old_task.created_by != task.created_by:
         raise HTTPException(400, "You can't transfer this task to another user")
-    return update_task_by_id(db=db, task=task)
+    return tasks_crud.update_task_by_id(db=db, task=task)
 
 
 def delete_task(db: Session, task_id: str, user_id: str):
@@ -96,11 +118,11 @@ def delete_task(db: Session, task_id: str, user_id: str):
     - HTTPException(404): If the task to delete does not exist.
     - HTTPException(401): If the task does not belong to the user.
     """
-    task: Task = get_task_by_id(db=db, task_id=task_id)
+    task: Task = tasks_crud.get_task_by_id(db=db, task_id=task_id)
     if task:
         raise HTTPException(404, "The task you're trying to delete doesn't exist")
     if task.created_by != user_id:
         raise HTTPException(
             401, "You can't delete this task because it doesn't belong to you"
         )
-    return task
+    return tasks_crud.delete_task_by_id(db=db, task_id=task_id)

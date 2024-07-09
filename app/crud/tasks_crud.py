@@ -4,7 +4,7 @@ from ..models import task_model
 from ..schemas import task_schema
 
 
-def create_task(db: Session, task: task_schema.Task):
+def create_task(db: Session, task: task_schema.TaskBase, user_id: str):
     """
     Creates a new task in the database.
 
@@ -19,7 +19,7 @@ def create_task(db: Session, task: task_schema.Task):
         title=task.title,
         description=task.description,
         created_date=datetime.datetime.now(),
-        created_by=task.created_by,
+        user_id=user_id,
         due_date=task.due_date,
     )
     db.add(db_task)
@@ -39,7 +39,21 @@ def get_tasks_by_user(db: Session, user_id: str):
     Returns:
     - List[task_model.Task]: A list of tasks created by the user.
     """
-    return db.query(task_model.Task).filter(task_model.Task.created_by == user_id).all()
+    return db.query(task_model.Task).filter(task_model.Task.user_id == user_id).all()
+
+
+def get_task_by_id(db: Session, task_id: str):
+    """
+    Retrieves a task by its ID.
+
+    Parameters:
+    - db (Session): The database session.
+    - task_id (str): The ID of the task to be retrieved.
+
+    Returns:
+    - task_model.Task: The task with the specified ID, or None if not found.
+    """
+    return db.query(task_model.Task).filter(task_model.Task.id == task_id).first()
 
 
 def delete_task_by_id(db: Session, task_id: str):

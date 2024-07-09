@@ -11,7 +11,7 @@ import app.services.tasks_service as tasks_service
 router = APIRouter(prefix="/tasks", tags=["tasks"], dependencies=[Depends(get_db)])
 
 
-@router.get("")
+@router.get("/")
 async def get_all_tasks_by_user(
     user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)
 ):
@@ -31,7 +31,7 @@ async def get_all_tasks_by_user(
         raise HTTPException(e.status_code, e.detail)
 
 
-@router.post("")
+@router.post("/")
 async def create_task(
     task: task_schema.TaskBase,
     user: Annotated[User, Depends(get_current_user)],
@@ -49,13 +49,12 @@ async def create_task(
     - task_schema.Task: The created task.
     """
     try:
-        task.created_by = user.id
-        return tasks_service.create_task(db=db, task=task)
+        return tasks_service.create_task(db=db, task=task, email=user.email)
     except HTTPException as e:
         raise HTTPException(e.status_code, e.detail)
 
 
-@router.put("")
+@router.put("/")
 async def update_task(
     task: task_schema.Task,
     user: Annotated[User, Depends(get_current_user)],

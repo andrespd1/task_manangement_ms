@@ -43,7 +43,7 @@ def generate_token(email: str):
     access_token = create_access_token(
         data={"sub": email}, expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return Token(access_token=access_token, token_type="Bearer")
 
 
 def login_user(db: Session, email: str, password: str):

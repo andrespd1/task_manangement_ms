@@ -10,13 +10,11 @@ class TaskBase(BaseModel):
     - title (str): The title of the task.
     - description (str): The description of the task.
     - due_date (date): The due date of the task.
-    - created_by (str): The ID of the user who created the task.
     """
 
     title: str
     description: str
     due_date: date
-    created_by: str
 
 
 class Task(TaskBase):
@@ -28,6 +26,7 @@ class Task(TaskBase):
     """
 
     id: str
+    created_by: str
 
     class Config:
         orm_mode = True
